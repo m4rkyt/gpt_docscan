@@ -1,0 +1,12 @@
+﻿.venv/
+__pycache__/
+out/
+models/
+docs/
+good/
+good16/
+prompts/
+*.png
+*.jpg
+*.jpeg
+*.pdf
