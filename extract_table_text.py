@@ -77,11 +77,12 @@ def extract_table_rows(words, table_roi, header_roi, header_cols, y_tol=8):
                 return i
         return len(edges) - 2
 
+    #STRICT: only words whose FULL bbox is inside the table ROI (no centre-point shortcut)
     scoped = [
         w for w in words
         if w.y0 >= hy1
-        and rx0 <= (w.x0 + w.x1) / 2 <= rx1
-        and ry0 <= (w.y0 + w.y1) / 2 <= ry1
+        and w.x0 >= rx0 and w.x1 <= rx1
+        and w.y0 >= ry0 and w.y1 <= ry1
         and w.text.strip()
     ]
 
