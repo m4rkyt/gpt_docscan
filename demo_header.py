@@ -40,11 +40,28 @@ import re
 import sys
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
-
+import subprocess
 import numpy as np
 from page_number_roi import detect_page_number_roi
 import cv2
 import fitz
+import json
+
+def dump_extracted_table_json(out_dir: str, pdf_path: str, header: list[str], rows: list[list[str]], statement_year: int | None) -> str:
+    os.makedirs(out_dir, exist_ok=True)
+    base = os.path.splitext(os.path.basename(pdf_path))[0]
+    jpath = os.path.join(out_dir, f"{base}.extracted_table.json")
+    obj = {
+        "pdf_path": pdf_path,
+        "out_dir": out_dir,
+        "header": header,
+        "rows": rows,
+        "statement_year": statement_year,
+    }
+    with open(jpath, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=2)
+    return jpath
+
 
 
 # -----------------------------
@@ -1054,6 +1071,13 @@ def main() -> int:
     with open(report_path, "w", encoding="utf-8") as f:
         f.write("\n".join(report_lines))
 
+    # Run external extractor to print table text to console
+    extract_script = os.path.join(os.path.dirname(__file__), "extract_table_text.py")
+    subprocess.run(
+       [sys.executable, extract_script, args.pdf, "--out_dir", args.out_dir, "--dpi", str(args.dpi)],
+    check=True
+    )
+    
     print(f"Done. Results written to: {args.out_dir}")
     print(f"- ROI report: {report_path}")
     if not args.no_images:
