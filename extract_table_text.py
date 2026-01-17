@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
+import os
 import re
 from datetime import datetime
 from typing import List, Optional, Tuple
@@ -129,6 +130,12 @@ def main() -> int:
     ap.add_argument("--y_tol", type=int, default=8)
     args = ap.parse_args()
 
+    os.makedirs(args.out_dir, exist_ok=True)
+    out_path = os.path.join(args.out_dir, os.path.splitext(os.path.basename(args.pdf))[0] + ".txt")
+    out_f = open(out_path, "w", encoding="utf-8", newline="\n")
+    wrote_header = False
+
+
     doc = fitz.open(args.pdf)
     statement_year: Optional[int] = None
 
@@ -170,11 +177,23 @@ def main() -> int:
                     r[date_idx] = fix_date(r[date_idx], statement_year)
 
         # Print header + rows per page (minimal)
+        if not wrote_header:
+            out_f.write("  ".join(header_names) + "\n")
+            wrote_header = True
         print("  ".join(header_names))
         for r in rows:
-            print("  ".join(ns(x) for x in r))
+            line = "  ".join(ns(x) for x in r)
+            print(line)
+            out_f.write(line + "\n")
 
+    out_f.close()
+    print(out_path)
     return 0
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+
+
+
