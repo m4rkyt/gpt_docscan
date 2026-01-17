@@ -562,7 +562,8 @@ def detect_table_rois_for_page(
         img_for_table = mask_image_regions(img_bgr, occupied, pad=2)
 
         baseline = detect_table_end_y(words_for_table, img_for_table, rx0, rx1, header_roi[3], y_tol=y_tol)
-        y_end = baseline["y_end_whitespace"] if baseline["y_end_whitespace"] is not None else baseline["y_end_transition"]
+        #y_end = baseline["y_end_whitespace"] if baseline["y_end_whitespace"] is not None else baseline["y_end_transition"]
+        y_end = (end_info.get("last_row_y1") or end_info.get("y_end_transition") or y_end) + 3
 
         footer_used = False
         if footer_page and footer_page.get("cutoff_y") is not None:
